@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "library(httr)\nlibrary(jsonlite)\nlibrary(dplyr)\n\napiUUID <- 10877\ntAnalyticsPost <- POST(paste('http://analytics-prod-proxy.cluster.kountable.com:6000/research/websearch', sep = \"\"),\n                       add_headers(\"Content-Type\" = \"application/json\"),\n                       body = paste0('{\"source_user\" : ',apiUUID , ',\"type\" : \"user\"}') )\ntContent <- fromJSON(rawToChar(tAnalyticsPost$content))\n\ntbl.keywords <- data_frame(keywords=tContent$keywords)\ntbl.helpwords <- data_frame(helpwords=tContent$helpwords)\ntbl.links <- data_frame(links=tContent$results$links,combinations=tContent$results$keywordsCombination)\n\n",
+    "created" : 1488818497923.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "137864678",
+    "id" : "4D289D3D",
+    "lastKnownWriteTime" : 1488819163,
+    "last_content_update" : 1488819163987,
+    "path" : "~/Rproject/web_test/webPresence.R",
+    "project_path" : "webPresence.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

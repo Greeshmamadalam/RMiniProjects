@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "con <- dbConnect(MySQL(),dbname = \"kountable\", user = \"kdevdbuser\", \n                 password = \"t00rYFWOiRF\", host = \"prod-db.clv18hnrncxz.us-west-2.rds.amazonaws.com\")\nquery <- \"Select id from project where ISNULL(deleted_at) and !(state_id in (3,8)) and state_id<17;\"\ntbl.projectsNotDelete <- con %>% dbGetQuery(query)\nquery <-\"select c.id,c.entity_id as projectId,c.created_by as uuid,b.user_id as participantuuid \n  from conversation as c,conversation_message as b \n  where c.id=b.conversation_id;\"\ntbl.conversation <- con %>% dbGetQuery(query) %>% \n  filter(participantuuid!=3810 & (projectId %in% tbl.projectsNotDelete$id)) %>% \n  mutate(response=1,participantuuid=ifelse(participantuuid!=uuid,10001,participantuuid))\ntbl.conversation <- tbl.conversation %>%\n  group_by(id,projectId,uuid,participantuuid) %>%\n  summarise(responsivefrankKoubel=ifelse(sum(response)>=1,1,0))\ntbl.conversation <- tbl.conversation %>%\n  group_by(id,projectId,uuid) %>%\n  summarise(responsiveCriteria=ifelse(sum(responsivefrankKoubel)>=2,1,0))\ntbl.conversation <- tbl.conversation %>%\n  group_by(uuid) %>%\n  summarise(responsiveCriteria=ifelse(sum(responsiveCriteria)>=1,1,0))",
+    "created" : 1488576583557.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "711195741",
+    "id" : "48E95BB4",
+    "lastKnownWriteTime" : 1488907887,
+    "last_content_update" : 1488907887312,
+    "path" : "~/Rproject/Badges/test.R",
+    "project_path" : "test.R",
+    "properties" : {
+    },
+    "relative_order" : 7,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

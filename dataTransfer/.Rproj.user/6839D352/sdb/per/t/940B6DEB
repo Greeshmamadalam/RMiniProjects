@@ -1,0 +1,28 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1487976531400.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "940B6DEB",
+    "lastKnownWriteTime" : 8017379800686289508,
+    "last_content_update" : 1487976531400,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "s0939wdlrq",
+        "caption" : "tbl.koubelData",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=tbl.koubelData&cache_key=s0939wdlrq",
+        "displayedObservations" : "28",
+        "environment" : "",
+        "object" : "tbl.koubelData",
+        "totalObservations" : "28",
+        "variables" : "28"
+    },
+    "relative_order" : 5,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

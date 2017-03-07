@@ -1,0 +1,28 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1481671123258.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "812D9B41",
+    "lastKnownWriteTime" : 519691042924,
+    "last_content_update" : 1481671123258,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "mlhv5gk4du",
+        "caption" : "tbl.dealmaker_summary",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=tbl.dealmaker_summary&cache_key=mlhv5gk4du",
+        "displayedObservations" : 1,
+        "environment" : "",
+        "object" : "tbl.dealmaker_summary",
+        "totalObservations" : 1,
+        "variables" : 3
+    },
+    "relative_order" : 10,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

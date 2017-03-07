@@ -1,0 +1,28 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1488401110665.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "AC3B3E7D",
+    "lastKnownWriteTime" : 3904465182007832170,
+    "last_content_update" : 1488401110665,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "0z4j5vyx8u",
+        "caption" : "tbl.tradeDeals_copy2",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=tbl.tradeDeals_copy2&cache_key=0z4j5vyx8u",
+        "displayedObservations" : "28",
+        "environment" : "",
+        "object" : "tbl.tradeDeals_copy2",
+        "totalObservations" : "28",
+        "variables" : "28"
+    },
+    "relative_order" : 9,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

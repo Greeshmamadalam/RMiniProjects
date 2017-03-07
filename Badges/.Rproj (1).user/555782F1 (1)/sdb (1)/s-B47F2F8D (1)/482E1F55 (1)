@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "apikycCall <- get.apiKYCCall('10198') \n",
+    "created" : 1480621048920.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "592552788",
+    "id" : "482E1F55",
+    "lastKnownWriteTime" : 1480624056,
+    "last_content_update" : 1480624056909,
+    "path" : "~/Rproject/Badges/gather_data.R",
+    "project_path" : "gather_data.R",
+    "properties" : {
+    },
+    "relative_order" : 5,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

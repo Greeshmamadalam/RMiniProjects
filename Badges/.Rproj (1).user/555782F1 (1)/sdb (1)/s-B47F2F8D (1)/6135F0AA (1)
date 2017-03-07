@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : " \n",
+    "created" : 1480542315958.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "881385283",
+    "id" : "6135F0AA",
+    "lastKnownWriteTime" : 1480542311,
+    "last_content_update" : 1480542311,
+    "path" : "~/Rproject/Badges/Get_data.R",
+    "project_path" : "Get_data.R",
+    "properties" : {
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

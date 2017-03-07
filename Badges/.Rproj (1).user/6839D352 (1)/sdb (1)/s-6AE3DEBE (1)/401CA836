@@ -1,0 +1,28 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1481652649080.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "401CA836",
+    "lastKnownWriteTime" : 0,
+    "last_content_update" : 1481652649080,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "pca759w75q",
+        "caption" : "tbl.conversation",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=tbl.conversation&cache_key=pca759w75q",
+        "displayedObservations" : 61,
+        "environment" : "",
+        "object" : "tbl.conversation",
+        "totalObservations" : 61,
+        "variables" : 2
+    },
+    "relative_order" : 8,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

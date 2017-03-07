@@ -1,0 +1,28 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1481651728351.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "59F364A0",
+    "lastKnownWriteTime" : 7596484193276666483,
+    "last_content_update" : 1481651728351,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "pg4z185tp5",
+        "caption" : "tbl.projectStatus",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=tbl.projectStatus&cache_key=pg4z185tp5",
+        "displayedObservations" : "512",
+        "environment" : "",
+        "object" : "tbl.projectStatus",
+        "totalObservations" : "512",
+        "variables" : "2"
+    },
+    "relative_order" : 7,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}
