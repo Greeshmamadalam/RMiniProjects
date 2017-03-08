@@ -58,6 +58,8 @@ userQuery <- paste0("SELECT
                     tradeTransactions_copy.transDesc2 type_id,
                     tradeTransactions_copy.transUSDEquiv usd_equivalent,
                     tradeTransactions_copy.transUSDEquivSpot usd_equivalent_spot,
+                    tradeTransactions_copy.transFXtoUSD fx_to_usd,
+                    tradeTransactions_copy.transFXtoUSDSpot fx_to_usd_spot,
                     NOW() as created_at,
                     NOW() as updated_at,
                     10198 as created_by,
