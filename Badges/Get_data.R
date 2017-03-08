@@ -61,16 +61,16 @@ get.projectscoresuuid <- function(frankdata){
 get.badge1data <- function(tbl.users,kscoredata){
   require(dplyr)
   require(RMySQL)
-  fprofilecutoff <- 0.5*39
+  fprofilecutoff <- 0.25*39
   profileCutoff <- 0.5*77
   mediaCutoff <- 0.5*195
-  responsiveCutoff <- 1
+  responsiveCutoff <- 5
   facebookcutoff <- 0.5*26
   linkedincutoff <- 0.5*35
   twittercutoff <- 0.5*33
   yahoocutoff <- 0.5*21
   googlepluscutoff <- 0.5*36
-  socialmediaacesscutoff <- 1
+  socialmediaacesscutoff <- 3
   tbl.personaldata <- bind_rows(lapply(kscoredata,function(frankdata) get.personaldata(frankdata)))
   tbl.personaldata <- tbl.personaldata %>% mutate(uuid=as.numeric(uuid)) %>% filter(uuid %in% tbl.users$uuid) %>%
     mutate(facebook=ifelse(facebook>=facebookcutoff,1,0),
