@@ -1,0 +1,225 @@
+---
+#title: "WebPresence"
+#author: "Joseph Doucette"
+#date: "10/31/2016"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+#=============================================================================
+#
+#     __                            __           __     __    
+#    / /__  _--.  __  __  -,--.  __/ /_ _--.    / /   / /_--.
+#   / // / / _ | / / / / / __ | /_  __// _ |   / /.   / // _.|
+#  /  '_/ / // // / / / / / | |  / /  / // |  / _ \  / // ___/
+# / /\ \ / // // /_/ | / /  / / / /  / //  | / // / / // /_-. 
+#/_/ |_| \___/ \___/|//_/  /_/ /_/   \___/|//_ __/ /_/ \___/
+#
+#
+# Name        : MarkerShinyNewIO.Rmd
+# Original Author      : Joseph Doucette
+# Updated by  : Joseph Doucette
+# Created     : 07/11/2016
+# Version     : 1.51
+# A Part of   : Kountable R Library
+# Copyright   : Kountable, Inc
+# Description : Rmarkdown Shiny Application for online KYC of users
+#             : These were 'extracted' from the Delphi code lib with permission
+#
+#  Software Copyright (c) 2016 by: kountable, inc.,
+#                                  2535 E Southlake Tx, Suite 100
+#                                  Southlake, TX 76092
+#
+#  This software is furnished only under a license and may be used and copied
+#  only according to the terms and conditions of such license and with the
+#  inclusion of the above copyright notice and this license statement.
+#  Neither this software nor any copies thereof may be distributed, provided
+#  or made available to any other person - either as source code or as modules
+#  in its compiled forms.  The use of this software is intended only for the
+#  benefit of valid license holders. No title to the software, the methodology
+#  for calculations, the algorithms or any other intellectual property of
+#  kountable, Inc is hereby transferred.
+#
+#============================================================================
+source('kApiKYCCallsSource.R')
+# source('web_searchSource.R')
+source('kWebPresenceSource.R')
+library(dplyr)
+library(DT)
+library(shiny)
+
+## get the list of users from the Swagger Api calls  This builds the drop down list
+userSearchName <- get.V2UsersList()
+# ls.results <- readRDS("/Users/doucetteemail/Documents/KountableFiles/RDevelopment/RMarker/RMarker/data/tbl.zOuput.rds")
+```
+
+
+
+```{r myHeader, echo=FALSE}
+# fluidPage(tags$img(src = "https://cdn.brandisty.com/img?id=5547ab6a2da09beb4c000007&format=jpg", width=400),style="background-color:#033951;")
+# fluidPage(tags$img(src = "www/Kountable-White_rgb_1200_266.jpg", width=400),style="background-color:#033951;")
+  
+```
+
+
+# Webpresence
+
+
+```{r main, echo=FALSE}
+
+  fluidPage(
+    theme='bootstrap.css',
+    fluidRow(
+#      h2('KYC Report -Alpha 1.75'), 
+      tags$div(tags$h3("Report Date: ", tags$b(strftime(Sys.time(),"%Y-%m-%d %H:%M:%S"), style ="color: #fff"))),
+      hr(),
+      HTML("<div class='alert alert-info'>",
+           "<strong>Heads up!</strong> AML searching defaults to <em>free</em>. WorldCheck searches are fee based, use only at approapriate trade finance stages in the Kountable Certified Entrepreneur qualification system. <a href='http://kountable.com' class='alert-link'>Kountable, Inc.</a>. ","</div>"),
+      style="background-color:#2593d1;"),
+    fluidRow(column(12, htmlOutput("chooseUUID1")), style="background-color:#2593d1;")
+    # "<strong>Heads up!</strong> This is a <em>prototype</em> of the many key KYC applications available to <a href='http://kountable.com' class='alert-link'>Kountable, Inc.</a>. ","</div>"
+    )
+  
+
+
+output$chooseUUID1 = renderUI({
+  list(
+    tags$div(selectInput(inputId = "selectUserId1", label = h4("Select UserId"), choices = userSearchName, selected = '504',
+                         selectize = FALSE, width = 450)),
+    tags$div(actionButton("goButton1", "Go!",icon("paper-plane"),
+                          style="border-color: #2e6da4", width = 100))
+    )
+  })
+
+webPresencePagesOutputTable <- eventReactive(input$goButton1, {
+                               cat(" Calling get.webPresencePagesOutputTable ","\n", sep = "")
+                                cat('--->',input$selectUserId1, '--->\n')
+                               get.webPresencePagesOutputTable(uuid =  input$selectUserId1)
+                     })
+# webPresenceOutputTable <- eventReactive(input$goButton1, {
+#                                cat(" Calling get.webPresenceOutputTable ","\n", sep = "")
+#                                 cat('--->',input$selectUserId1, '--->\n')
+#                                get.webPresenceOutputTable(ls.results = ls.results,uuid =  input$selectUserId1)
+#                      })
+# uniqueUrlsTable <- reactive({
+#                                cat(" Calling get.uniqueUrlsTable ","\n", sep = "")
+#                                 cat('--->',input$selectUserId1, '--->\n')
+#                                get.uniqueUrlsTable(tbl.searchGoogleItems = webPresencePagesOutputTable(), uuid =  input$selectUserId1)
+#                      })
+createresultfile <- reactive({
+                               cat(" Calling get.createresultfile ","\n", sep = "")
+                                cat('--->',input$selectUserId1, '--->\n')
+                               get.createresultfile(tbl.searchGoogleItems = webPresencePagesOutputTable(), uuid =  input$selectUserId1)
+                     })
+
+
+```
+
+## Frank Profile Data
+***
+
+```{r FrankProfile, echo=FALSE}
+DT::dataTableOutput("createresultfile")
+
+##frankProfileData()[,c('kActive','kScore','profile','data')]
+
+output$createresultfile = DT::renderDataTable({
+        DT::datatable( createresultfile(), class='compact stripe', escape = FALSE, rownames = FALSE,
+                                   caption = tags$caption(style = 'caption-side: top; text-align: left;',
+                                             tags$div(tags$h3("WebPresence Summary for: ",
+                                             tags$b(paste0(createresultfile()$uuid[1]), style = 'color:blue')
+                                             ))),
+
+                                   options = list(
+                                                 #order = list(list(2, 'desc'), list(4, 'desc')),
+                                                  pageLength=nrow(createresultfile()), # needs to match nrow on the table, currently with 4 addins its 24
+                                                  bLengthChange=0, # show/hide records per page dropdown
+                                                  bFilter=0,       # global search box on/off
+                                                  bInfo=0,         #removes # of reccords filter bottom left
+                                                  bPaginate=0      #removes the page select bottom right
+                                                  # columnDefs = list(list(width = 50, targets = c(0)),
+                                                  #                   list(width = 400, targets = c(1))
+                                                  #                   #list(className="dt-center", targets=c(0,1))
+                                                  #                   )
+                                                  )
+
+        )
+      })
+# DT::dataTableOutput("webPresenceOutputTable")
+# 
+# ##frankProfileData()[,c('kActive','kScore','profile','data')]
+# 
+# output$webPresenceOutputTable = DT::renderDataTable({
+#         DT::datatable( webPresenceOutputTable(), class='compact stripe', escape = FALSE, rownames = FALSE,
+#                                    caption = tags$caption(style = 'caption-side: top; text-align: left;',
+#                                              tags$div(tags$h3("WebPresence Summary for: ",
+#                                              tags$b(paste0(webPresenceOutputTable()$uuid[1]), style = 'color:blue')
+#                                              ))),
+# 
+#                                    options = list(
+#                                                  #order = list(list(2, 'desc'), list(4, 'desc')),
+#                                                   pageLength=nrow(webPresenceOutputTable()), # needs to match nrow on the table, currently with 4 addins its 24
+#                                                   bLengthChange=0, # show/hide records per page dropdown
+#                                                   bFilter=0,       # global search box on/off
+#                                                   bInfo=0,         #removes # of reccords filter bottom left
+#                                                   bPaginate=0,      #removes the page select bottom right
+#                                                   columnDefs = list(list(width = 50, targets = c(0)),
+#                                                                     list(width = 400, targets = c(1))
+#                                                                     #list(className="dt-center", targets=c(0,1))
+#                                                                     )
+#                                                   )
+# 
+#         )
+#       })
+
+
+
+```
+This R Markdown document is made interactive using Shiny. Unlike the more traditional workflow of creating static reports, you can now create documents that allow your readers to change the assumptions underlying your analysis and see the results immediately. 
+
+To learn more, see [Interactive Documents](http://rmarkdown.rstudio.com/authoring_shiny.html).
+
+## Inputs and Outputs
+
+You can embed Shiny inputs and outputs in your document. Outputs are automatically updated whenever inputs change.  This demonstrates how a standard R plot can be made interactive by wrapping it in the Shiny `renderPlot` function. The `selectInput` and `sliderInput` functions create the input widgets used to drive the plot.
+
+```{r eruptions, echo=FALSE}
+inputPanel(
+  selectInput("n_breaks", label = "Number of bins:",
+              choices = c(10, 20, 35, 50), selected = 20),
+  
+  sliderInput("bw_adjust", label = "Bandwidth adjustment:",
+              min = 0.2, max = 2, value = 1, step = 0.2)
+)
+
+renderPlot({
+  hist(faithful$eruptions, probability = TRUE, breaks = as.numeric(input$n_breaks),
+       xlab = "Duration (minutes)", main = "Geyser eruption duration")
+  
+  dens <- density(faithful$eruptions, adjust = input$bw_adjust)
+  lines(dens, col = "blue")
+})
+```
+
+## Embedded Application
+
+It's also possible to embed an entire Shiny application within an R Markdown document using the `shinyAppDir` function. This example embeds a Shiny application located in another directory:
+
+```{r tabsets, echo=FALSE}
+shinyAppDir(
+  system.file("examples/06_tabsets", package = "shiny"),
+  options = list(
+    width = "100%", height = 550
+  )
+)
+```
+
+Note the use of the `height` parameter to determine how much vertical space the embedded application should occupy.
+
+You can also use the `shinyApp` function to define an application inline rather then in an external directory.
+
+In all of R code chunks above the `echo = FALSE` attribute is used. This is to prevent the R code within the chunk from rendering in the document alongside the Shiny components.
+
+
+
