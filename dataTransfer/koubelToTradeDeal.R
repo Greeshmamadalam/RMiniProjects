@@ -5,7 +5,7 @@ lapply( dbListConnections( dbDriver( drv = "MySQL")), dbDisconnect)
 
 get.koubeldata <- function(projectId){
   cat(projectId,"\n")
-con <- dbConnect(MySQL(),dbname = "kountable", user = "kdevdbuser", 
+con <- dbConnect(MySQL(),dbname = "kountable", user = "kdevdbuser",
                  password = "t00rYFWOiRF", host = "prod-db.clv18hnrncxz.us-west-2.rds.amazonaws.com")
 userQuery <- paste0("SELECT
                     project.id AS deal_id,
@@ -32,15 +32,16 @@ userQuery <- paste0("SELECT
                     project.due_date AS DueDate1,
                     country.name AS FrankCountry1,
                     currency.code AS InvoiceCurrency1
-                    FROM
-                    project
-                    LEFT JOIN project_state ON project.state_id = project_state.id
-                    LEFT JOIN project_status ON project.status_id = project_status.id
-                    LEFT JOIN project_type ON project.type_id = project_type.id
-                    LEFT JOIN business ON project.frank_business_id = business.id
-                    LEFT JOIN product ON project.product_id = product.id
-                    LEFT JOIN currency ON project.invoice_currency_id = currency.id,country
-                    where business.legal_registered_country_id=country.id AND project.id=",projectId,"
+                      FROM
+                      project
+                      LEFT JOIN project_state ON project.state_id = project_state.id
+                      LEFT JOIN project_status ON project.status_id = project_status.id
+                      LEFT JOIN project_type ON project.type_id = project_type.id
+                      LEFT JOIN business ON project.frank_business_id = business.id
+                      LEFT JOIN product ON project.product_id = product.id
+                      LEFT JOIN currency ON project.invoice_currency_id = currency.id
+                      LEFT JOIN country ON  business.legal_registered_country_id=country.id
+                      where project.id=",projectId,"
                     ");
 tbl.koubel <- con %>% dbGetQuery(userQuery)
 userQuery <- paste0("SELECT
@@ -130,14 +131,7 @@ createtable <- function(dbConnection_dplyr,tbl.table,tablename){
 }
 
 
-projectIds <- list(169,335,581,10011,10013,
-                   10014,10016,10051,10060,
-                   10078,10083,10084,10096,
-                   10108,10155,10194,10200,
-                   10203,10209,10221,10227,
-                   10253,10319,10539,10563,
-                   10564,10664,10805,10822,
-                   10881,10882,10883)
+projectIds <- list(10564,10664,10943,10805,11028,11032)
 tbl.tradeDeals_copy1 <- bind_rows(lapply(projectIds, get.koubeldata))
 tbl.tradeDeals_copy <- get.tradeDealsData()
 tbl.tradeDeals_copy <- dplyr::left_join(tbl.tradeDeals_copy, tbl.tradeDeals_copy1, by = 'deal_id')
@@ -168,12 +162,10 @@ tbl.tradeDeals_copy <- tbl.tradeDeals_copy %>% mutate(TradeName = ifelse(is.na(T
                                                       DueDate = ifelse(is.na(DueDate),DueDate1,DueDate),
                                                       FrankCountry = ifelse(is.na(FrankCountry),FrankCountry1,FrankCountry),
                                                       InvoiceCurrency = ifelse(is.na(InvoiceCurrency),InvoiceCurrency1,InvoiceCurrency),
-                                                      ProcuringEntityTier = ifelse(is.na(ProcuringEntityTier),ProcuringEntityTier1,ProcuringEntityTier),                                    
+                                                      ProcuringEntityTier = ifelse(is.na(ProcuringEntityTier),ProcuringEntityTier1,ProcuringEntityTier),
                                                       ProcuringEntity=ifelse(is.na(ProcuringEntity),ProcuringEntity1,ProcuringEntity),
                                                       ProcuringEntityCountry= ifelse(is.na(ProcuringEntityCountry),ProcuringEntityCountry1,ProcuringEntityCountry),
-                                                      payableUSD = ifelse(is.na(payableUSD),payableUSD1,payableUSD)) 
-                                                      
-
+                                                      payableUSD = ifelse(is.na(payableUSD),payableUSD1,payableUSD))
 tbl.tradeDeals_copy <- tbl.tradeDeals_copy %>% select(-TradeName1,-ClientBusinessName1,-ClientContactName1,-productDescription1,-VARID1,-KEntity1,
                                                       -KSignor1,-KBusinessStreet1,-KBusinessCityStateCountry1,-fxReserve1,-minOrigFee1,
                                                       -origFeeRate1,-servicingFee1,-tradeMargin1,-ClientBusinesRegistrationCompanyCodeTIN1,
