@@ -1,3 +1,9 @@
+require(dplyr)
+require(RMySQL)
+source('sqlFunctions.R')
+
+lapply( dbListConnections( dbDriver( drv = "MySQL")), dbDisconnect)
+
 get.koubeldata <- function(projectId){
   cat(projectId,"\n")
   con <- dbConnect(MySQL(),dbname = "kountable", user = "kdevdbuser", 
@@ -69,30 +75,14 @@ get.koubeldata <- function(projectId){
   dbDisconnect(con)
   return (tbl.koubel)
 }
-
-formatTables <- function(tbl.table){
-  for(ci in colnames(tbl.table)) {
-    napos <- is.na(tbl.table[[ci]])
-    if(any(napos)) {
-      if(is.numeric(tbl.table[[ci]])) {
-        tbl.table[[ci]][napos] <- NA
-      }
-      if(is.character(tbl.table[[ci]])) {
-        tbl.table[[ci]][napos] <- ''
-      }
-    }
-  }
-  return(tbl.table)
-}
+## project ids that needs to be appended to tradeDeals
+projectIds <- list()
 
 
-projectIds <- list(10943,11028)
-
-tbl.rows_project <- bind_rows(lapply(projectIds, get.koubeldata))
-conKoubel_francine <- dbConnect(MySQL(),dbname = "kountable_francine", user = "kdevdbuser", 
-                                password = "t00rYFWOiRF", host = "prod-db.clv18hnrncxz.us-west-2.rds.amazonaws.com")
-dbWriteTable(conn = conKoubel_francine, name = 'tradeDeals', tbl.rows_project , append = TRUE, row.names = FALSE)
-dbDisconnect(conKoubel_francine)
+tbl.newTradeDeals <- bind_rows(lapply(projectIds, get.koubeldata))
+koubel_franscine_connect_Rmysql <- koubel_franscine_connect_Rmysql()
+dbWriteTable(conn = koubel_franscine_connect_Rmysql, name = 'tradeDeals', tbl.newTradeDeals , append = TRUE, row.names = FALSE)
+dbDisconnect(koubel_franscine_connect_Rmysql)
 
 
 

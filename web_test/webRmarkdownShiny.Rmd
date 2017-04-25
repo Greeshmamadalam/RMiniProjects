@@ -1,0 +1,134 @@
+---
+#title: "WebPresence"
+#author: "Joseph Doucette"
+#date: "10/31/2016"
+output: html_document
+runtime: shiny
+---
+```{r setup, include=FALSE}
+#=============================================================================
+#
+#     __                            __           __     __    
+#    / /__  _--.  __  __  -,--.  __/ /_ _--.    / /   / /_--.
+#   / // / / _ | / / / / / __ | /_  __// _ |   / /.   / // _.|
+#  /  '_/ / // // / / / / / | |  / /  / // |  / _ \  / // ___/
+# / /\ \ / // // /_/ | / /  / / / /  / //  | / // / / // /_-. 
+#/_/ |_| \___/ \___/|//_/  /_/ /_/   \___/|//_ __/ /_/ \___/
+#
+#
+# Name        : MarkerShinyNewIO.Rmd
+# Original Author      : Joseph Doucette
+# Updated by  : Joseph Doucette
+# Created     : 07/11/2016
+# Version     : 1.51
+# A Part of   : Kountable R Library
+# Copyright   : Kountable, Inc
+# Description : Rmarkdown Shiny Application for online KYC of users
+#             : These were 'extracted' from the Delphi code lib with permission
+#
+#  Software Copyright (c) 2016 by: kountable, inc.,
+#                                  2535 E Southlake Tx, Suite 100
+#                                  Southlake, TX 76092
+#
+#  This software is furnished only under a license and may be used and copied
+#  only according to the terms and conditions of such license and with the
+#  inclusion of the above copyright notice and this license statement.
+#  Neither this software nor any copies thereof may be distributed, provided
+#  or made available to any other person - either as source code or as modules
+#  in its compiled forms.  The use of this software is intended only for the
+#  benefit of valid license holders. No title to the software, the methodology
+#  for calculations, the algorithms or any other intellectual property of
+#  kountable, Inc is hereby transferred.
+#
+#============================================================================
+source('kApiKYCCallsSource.R')
+# source('web_searchSource.R')
+source('WebPresence.R')
+library(dplyr)
+library(DT)
+library(shiny)
+## get the list of users from the Swagger Api calls  This builds the drop down list
+userSearchName <- get.V2UsersList()
+# ls.results <- readRDS("/Users/doucetteemail/Documents/KountableFiles/RDevelopment/RMarker/RMarker/data/tbl.zOuput.rds")
+```
+```{r myHeader, echo=FALSE}
+# fluidPage(tags$img(src = "https://cdn.brandisty.com/img?id=5547ab6a2da09beb4c000007&format=jpg", width=400),style="background-color:#033951;")
+# fluidPage(tags$img(src = "www/Kountable-White_rgb_1200_266.jpg", width=400),style="background-color:#033951;")
+  
+```
+# Webpresence
+```{r main, echo=FALSE}
+  fluidPage(
+    theme='bootstrap.css',
+    fluidRow(
+#      h2('KYC Report -Alpha 1.75'), 
+      tags$div(tags$h3("Report Date: ", tags$b(strftime(Sys.time(),"%Y-%m-%d %H:%M:%S"), style ="color: #fff"))),
+      hr(),
+      HTML("<div class='alert alert-info'>",
+           "<strong>Heads up!</strong> AML searching defaults to <em>free</em>. WorldCheck searches are fee based, use only at approapriate trade finance stages in the Kountable Certified Entrepreneur qualification system. <a href='http://kountable.com' class='alert-link'>Kountable, Inc.</a>. ","</div>"),
+      style="background-color:#2593d1;"),
+    fluidRow(column(12, htmlOutput("chooseUUID1")), style="background-color:#2593d1;")
+    # "<strong>Heads up!</strong> This is a <em>prototype</em> of the many key KYC applications available to <a href='http://kountable.com' class='alert-link'>Kountable, Inc.</a>. ","</div>"
+    )
+  
+output$chooseUUID1 = renderUI({
+  list(
+    tags$div(selectInput(inputId = "selectUserId1", label = h4("Select UserId"), choices = userSearchName, selected = '504',
+                         selectize = FALSE, width = 450)),
+    tags$div(actionButton("goButton1", "Go!",icon("paper-plane"),
+                          style="border-color: #2e6da4", width = 100))
+    )
+  })
+
+selectedUserId <- eventReactive(input$goButton1, {
+  print("ntext")
+    input$selectUserId1
+  })
+WebPresence <- eventReactive(input$goButton1, {
+                               cat('Calling get.WebPresence for selectedUserId ---> ',selectedUserId(), '\n')
+                               
+                               withProgress(message = 'getting WebPresence Analytics Data',
+                                            detail = 'This may take a while...', 
+                                            value = 0, {
+                                              for (i in 1:4) {
+                                                incProgress(1/4)
+                                                Sys.sleep(0.25)}
+                                              
+                                            get.WebPresence(uuid =  selectedUserId())
+                                              })
+                               
+                                })
+# createResultFile <- reactive({
+#                                cat('Calling get.createresultfile for selectedUserId ---> ',selectedUserId(), '\n')
+#                                
+#                                get.createresultfile(urls = WebPresence(), uuid =  selectedUserId())
+#                      })
+
+```
+
+## WebPresence Table
+***
+
+```{r FrankProfile, echo=FALSE}
+DT::dataTableOutput("webPresenceTable")
+##frankProfileData()[,c('kActive','kScore','profile','data')]
+output$webPresenceTable = DT::renderDataTable({
+        DT::datatable( WebPresence()$tbl.urls, class='compact stripe', escape = FALSE, rownames = FALSE,
+                                   caption = tags$caption(style = 'caption-side: top; text-align: left;',
+                                             tags$div(tags$h3("WebPresence Summary for: ",
+                                             tags$b(paste0(WebPresence()$uuid), style = 'color:blue')
+                                             ))),
+                                   options = list(
+                                                 #order = list(list(2, 'desc'), list(4, 'desc')),
+                                                  pageLength=nrow(WebPresence()$tbl.urls), # needs to match nrow on the table, currently with 4 addins its 24
+                                                  bLengthChange=0, # show/hide records per page dropdown
+                                                  bFilter=0,       # global search box on/off
+                                                  bInfo=0,         #removes # of reccords filter bottom left
+                                                  bPaginate=0      #removes the page select bottom right
+                                                  # columnDefs = list(list(width = 50, targets = c(0)),
+                                                  #                   list(width = 400, targets = c(1))
+                                                  #                   #list(className="dt-center", targets=c(0,1))
+                                                  #                   )
+                                                  )
+        )
+      })

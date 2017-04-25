@@ -1,5 +1,6 @@
 require(dplyr)
 require(RMySQL)
+source('sqlFunctions.R')
 lapply( dbListConnections( dbDriver( drv = "MySQL")), dbDisconnect)
 
 
@@ -9,29 +10,29 @@ con <- dbConnect(MySQL(),dbname = "kountable", user = "kdevdbuser",
                  password = "t00rYFWOiRF", host = "prod-db.clv18hnrncxz.us-west-2.rds.amazonaws.com")
 userQuery <- paste0("SELECT
                     project.id AS deal_id,
-                    project.`name` AS TradeName1,
-                    business.`name` AS ClientBusinessName1,
-                    business.contact AS ClientContactName1,
-                    project.description as productDescription1,
-                    project.frank_business_id as VARID1,
-                    'Kountable Trading Limited' as KEntity1,
-                    'Lynden John' as KSignor1,
-                    '89 Nexus Way' as KBusinessStreet1,
-                    'Camana Bay, Grand Cayman KY1-9007, Cayman Islands' as KBusinessCityStateCountry1,
-                    project.fx_reserve/100 AS fxReserve1,
-                    project.min_orig_fee AS minOrigFee1,
-                    project.origination_fee_rate/100 AS origFeeRate1,
-                    project.servicing_fee/100 AS servicingFee1,
-                    project.trade_margin/100 AS tradeMargin1,
-                    business.registration_num AS ClientBusinesRegistrationCompanyCodeTIN1,
-                    business.city AS ClientPrincipalBusinessCityStateCountry1,
-                    business.address AS ClientRegisteredAddress1,
-                    business.contact AS ClientContact1,
-                    business.phone AS ClientTelephone1,
-                    project.fx_rate AS initialFXSpotRate1,
-                    project.due_date AS DueDate1,
-                    country.name AS FrankCountry1,
-                    currency.code AS InvoiceCurrency1
+                    project.`name` AS TradeName,
+                    business.`name` AS ClientBusinessName,
+                    business.contact AS ClientContactName,
+                    project.description as productDescription,
+                    project.frank_business_id as VARID,
+                    'Kountable Trading Limited' as KEntity,
+                    'Lynden John' as KSignor,
+                    '89 Nexus Way' as KBusinessStreet,
+                    'Camana Bay, Grand Cayman KY1-9007, Cayman Islands' as KBusinessCityStateCountry,
+                    project.fx_reserve/100 AS fxReserve,
+                    project.min_orig_fee AS minOrigFee,
+                    project.origination_fee_rate/100 AS origFeeRate,
+                    project.servicing_fee/100 AS servicingFee,
+                    project.trade_margin/100 AS tradeMargin,
+                    business.registration_num AS ClientBusinesRegistrationCompanyCodeTIN,
+                    business.city AS ClientPrincipalBusinessCityStateCountry,
+                    business.address AS ClientRegisteredAddress,
+                    business.contact AS ClientContact,
+                    business.phone AS ClientTelephone,
+                    project.fx_rate AS initialFXSpotRate,
+                    project.due_date AS DueDate,
+                    country.name AS FrankCountry,
+                    currency.code AS InvoiceCurrency
                       FROM
                       project
                       LEFT JOIN project_state ON project.state_id = project_state.id
@@ -67,10 +68,10 @@ tbl.payables <- con %>% dbGetQuery(userQuery)
 tbl.payables <- tbl.payables %>%
   group_by(project_id) %>%
   summarise(amount=sum(amount*unlist(currencyConversion[currency_id])))
-tbl.koubel <- tbl.koubel %>% mutate(ProcuringEntityTier1 = ifelse(exists('ProcuringEntityTier', where =tbl.payor),ifelse(is.na(tbl.payor$ProcuringEntityTier),0,as.numeric(tbl.payor$ProcuringEntityTier)),0),
-                            ProcuringEntity1=ifelse(exists('ProcuringEntity', where =tbl.payor),ifelse(is.na(tbl.payor$ProcuringEntity),"",tbl.payor$ProcuringEntity),""),
-                            ProcuringEntityCountry1=ifelse(exists('ProcuringEntityCountry', where =tbl.payor),ifelse(is.na(tbl.payor$ProcuringEntityCountry),"",tbl.payor$ProcuringEntityCountry),""),
-                            payableUSD1 = ifelse(exists('amount',where=tbl.payables),tbl.payables$amount,0))
+tbl.koubel <- tbl.koubel %>% mutate(ProcuringEntityTier = ifelse(exists('ProcuringEntityTier', where =tbl.payor),ifelse(is.na(tbl.payor$ProcuringEntityTier),0,as.numeric(tbl.payor$ProcuringEntityTier)),0),
+                            ProcuringEntity=ifelse(exists('ProcuringEntity', where =tbl.payor),ifelse(is.na(tbl.payor$ProcuringEntity),"",tbl.payor$ProcuringEntity),""),
+                            ProcuringEntityCountry=ifelse(exists('ProcuringEntityCountry', where =tbl.payor),ifelse(is.na(tbl.payor$ProcuringEntityCountry),"",tbl.payor$ProcuringEntityCountry),""),
+                            payableUSD= ifelse(exists('amount',where=tbl.payables),tbl.payables$amount,0))
 dbDisconnect(con)
 return (tbl.koubel)
 }
@@ -82,96 +83,22 @@ tbl.tradeDeals_copy <- con %>% dbGetQuery(userQuery)
 dbDisconnect(con)
 return(tbl.tradeDeals_copy)
 }
-formatTables <- function(tbl.table){
-  for(ci in colnames(tbl.table)) {
-    napos <- is.na(tbl.table[[ci]])
-    if(any(napos)) {
-      if(is.numeric(tbl.table[[ci]])) {
-        tbl.table[[ci]][napos] <- NA
-      }
-      if(is.character(tbl.table[[ci]])) {
-        tbl.table[[ci]][napos] <- ''
-      }
-    }
-  }
-  return(tbl.table)
-}
-koubel_franscine_connect_dplyr <- function(){
-  kRsocket <- "/var/run/mysql/mysql.sock"
-  kRUser <- "kdevdbuser"
-  kRUserPwd <- "t00rYFWOiRF"
-  kRDatabase <- "kountable_francine"
-  kRHost <- "prod-db.clv18hnrncxz.us-west-2.rds.amazonaws.com"
-  kRDBPort <- 3306
-  conMySql<- dbConnect(dbDriver("MySQL"), user=kRUser, password=kRUserPwd, dbname=kRDatabase, host=kRHost, port=kRDBPort,
-                       unix.socket=kRsocket, client.flag=CLIENT_MULTI_STATEMENTS)
-  db.src_mysql <- src_mysql(kRDatabase, host = kRHost, port = kRDBPort, user = kRUser, password = kRUserPwd)
-  return (db.src_mysql)
-}
-drop_in_koubel_franscine <- function(tablename){
-  kRsocket <- "/var/run/mysql/mysql.sock"
-  kRUser <- "kdevdbuser"
-  kRUserPwd <- "t00rYFWOiRF"
-  kRDatabase <- "kountable_francine"
-  kRHost <- "prod-db.clv18hnrncxz.us-west-2.rds.amazonaws.com"
-  kRDBPort <- 3306
-  conMySql<- dbConnect(dbDriver("MySQL"), user=kRUser, password=kRUserPwd, dbname=kRDatabase, host=kRHost, port=kRDBPort,
-                       unix.socket=kRsocket, client.flag=CLIENT_MULTI_STATEMENTS)
-  
-  ## Drop old table and create new table
-  ## drop old table using RMySQL's dbSendQuery
-  cat('+++++++++++++++++++++++++++ DROP TABLE tradeDeals +++++++++++++++++++++++\n')
-  dbSendQuery(conMySql, paste0("DROP TABLE ",tablename))
-}
-createtable <- function(dbConnection_dplyr,tbl.table,tablename){
-  # create table with dyplyr field formats using copy_to
-  cat('+++++++++++++++++++++++++++ copy_to tradeDeals +++++++++++++++++++++++\n')
-  copy_to(dbConnection_dplyr,formatTables(tbl.table), name=tablename, temporary = FALSE)
-  
-}
 
+## add project Ids to generate tradedeals fields for new projects   (do not remove project ids from the below list unless there is a duplicate)
+projectIds <- list(
+  169,335,581,10011,10013,
+  10014,10016,10051,10060,
+  10078,10083,10084,10096,
+  10108,10119,10155,10194,
+  10200,10203,10209,10221,
+  10227,10253,10319,10539,
+  10563,10564,10664,10805,
+  10822,10881,10882,10883,
+  10943,11003,11028,11032,
+  11049,11072,11104
+)
+tbl.dw_tradeDeals <- bind_rows(lapply(projectIds, get.koubeldata))
 
-projectIds <- list(10564,10664,10943,10805,11028,11032)
-tbl.tradeDeals_copy1 <- bind_rows(lapply(projectIds, get.koubeldata))
-tbl.tradeDeals_copy <- get.tradeDealsData()
-tbl.tradeDeals_copy <- dplyr::left_join(tbl.tradeDeals_copy, tbl.tradeDeals_copy1, by = 'deal_id')
-# tbl.tradeDeals_copy <- tbl.tradeDeals_copy %>% mutate(fxReserve = ifelse(is.na(fxReserve),fxReserve,fxReserve/100),
-#                                                       origFeeRate =  ifelse(is.na(origFeeRate),origFeeRate,origFeeRate/100),
-#                                                       servicingFee = ifelse(is.na(servicingFee),servicingFee,servicingFee/100),
-#                                                       tradeMargin = ifelse(is.na(tradeMargin),tradeMargin,tradeMargin/100))
-tbl.tradeDeals_copy <- tbl.tradeDeals_copy %>% mutate(TradeName = ifelse(is.na(TradeName),TradeName1,TradeName),
-                                                      ClientBusinessName = ifelse(is.na(ClientBusinessName),ClientBusinessName1,ClientBusinessName),
-                                                      ClientContactName = ifelse(is.na(ClientContactName),ClientContactName1,ClientContactName),
-                                                      productDescription = ifelse(is.na(productDescription),productDescription1,productDescription),
-                                                      VARID = ifelse(is.na(VARID),VARID1,VARID),
-                                                      KEntity = ifelse(is.na(KEntity),KEntity1,KEntity),
-                                                      KSignor = ifelse(is.na(KSignor),KSignor1,KSignor),
-                                                      KBusinessStreet = ifelse(is.na(KBusinessStreet),KBusinessStreet1,KBusinessStreet),
-                                                      KBusinessCityStateCountry = ifelse(is.na(KBusinessCityStateCountry),KBusinessCityStateCountry1,KBusinessCityStateCountry),
-                                                      fxReserve = ifelse(is.na(fxReserve),fxReserve1,fxReserve),
-                                                      minOrigFee = ifelse(is.na(minOrigFee),minOrigFee1,minOrigFee),
-                                                      origFeeRate =  ifelse(is.na(origFeeRate),origFeeRate1,origFeeRate),
-                                                      servicingFee = ifelse(is.na(servicingFee),servicingFee1,servicingFee),
-                                                      tradeMargin = ifelse(is.na(tradeMargin),tradeMargin1,tradeMargin),
-                                                      ClientBusinesRegistrationCompanyCodeTIN = ifelse(is.na(ClientBusinesRegistrationCompanyCodeTIN),ClientBusinesRegistrationCompanyCodeTIN1,ClientBusinesRegistrationCompanyCodeTIN),
-                                                      ClientPrincipalBusinessCityStateCountry = ifelse(is.na(ClientPrincipalBusinessCityStateCountry),ClientPrincipalBusinessCityStateCountry1,ClientPrincipalBusinessCityStateCountry),
-                                                      ClientRegisteredAddress = ifelse(is.na(ClientRegisteredAddress),ClientRegisteredAddress1,ClientRegisteredAddress),
-                                                      ClientContact = ifelse(is.na(ClientContact),ClientContact1,ClientContact),
-                                                      ClientTelephone = ifelse(is.na(ClientTelephone),ClientTelephone1,ClientTelephone),
-                                                      initialFXSpotRate = ifelse(is.na(initialFXSpotRate),initialFXSpotRate1,initialFXSpotRate),
-                                                      DueDate = ifelse(is.na(DueDate),DueDate1,DueDate),
-                                                      FrankCountry = ifelse(is.na(FrankCountry),FrankCountry1,FrankCountry),
-                                                      InvoiceCurrency = ifelse(is.na(InvoiceCurrency),InvoiceCurrency1,InvoiceCurrency),
-                                                      ProcuringEntityTier = ifelse(is.na(ProcuringEntityTier),ProcuringEntityTier1,ProcuringEntityTier),
-                                                      ProcuringEntity=ifelse(is.na(ProcuringEntity),ProcuringEntity1,ProcuringEntity),
-                                                      ProcuringEntityCountry= ifelse(is.na(ProcuringEntityCountry),ProcuringEntityCountry1,ProcuringEntityCountry),
-                                                      payableUSD = ifelse(is.na(payableUSD),payableUSD1,payableUSD))
-tbl.tradeDeals_copy <- tbl.tradeDeals_copy %>% select(-TradeName1,-ClientBusinessName1,-ClientContactName1,-productDescription1,-VARID1,-KEntity1,
-                                                      -KSignor1,-KBusinessStreet1,-KBusinessCityStateCountry1,-fxReserve1,-minOrigFee1,
-                                                      -origFeeRate1,-servicingFee1,-tradeMargin1,-ClientBusinesRegistrationCompanyCodeTIN1,
-                                                      -ClientPrincipalBusinessCityStateCountry1,-ClientRegisteredAddress1,-ClientContact1,
-                                                      -ClientTelephone1,-initialFXSpotRate1,-DueDate1,-FrankCountry1,-InvoiceCurrency1,
-                                                      -ProcuringEntityTier1,-ProcuringEntity1,-ProcuringEntityCountry1,-payableUSD1)
-drop_in_koubel_franscine("tradeDeals_copy")
+drop_in_koubel_franscine("dw_tradeDeals")
 koubel_franscine_dplyr <- koubel_franscine_connect_dplyr()
-createtable(koubel_franscine_dplyr,tbl.tradeDeals_copy,"tradeDeals_copy")
+createtable(koubel_franscine_dplyr,tbl.dw_tradeDeals,"dw_tradeDeals")
