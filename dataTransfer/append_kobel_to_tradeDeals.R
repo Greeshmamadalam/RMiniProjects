@@ -76,7 +76,7 @@ get.koubeldata <- function(projectId){
   return (tbl.koubel)
 }
 ## project ids that needs to be appended to tradeDeals
-projectIds <- list()
+projectIds <- list(10564)
 
 
 tbl.newTradeDeals <- bind_rows(lapply(projectIds, get.koubeldata))

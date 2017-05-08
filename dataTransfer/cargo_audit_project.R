@@ -34,5 +34,38 @@ tbl.deals <- bind_rows(lapply(distinct_df,fill_table,tbl.milestones))
 getwd()
 write.csv(tbl.deals, file = "tbl.cargo_audit_project.csv",row.names=FALSE, na="")
 
-#write.csv(tbl.deals, file = "tbl.carl_report_advance.csv",row.names=FALSE, na="")
+projects <-  c(11028,11104,11049,11072,11178,11179)
+
+tbl.Advances <- bind_rows(lapply(projects,function(projectId){
+  userQuery <- paste0("SELECT
+                      p.id projectId,
+                      p.name ProjectName,
+                      '  ' as CurrentDeal,
+                      b.id SupplierID,
+                      b.name SupplierName,
+                      pt.paid_at TransDate,
+                      m.name,
+                      m.planned_completion_date expectedDateVARreceivedGoods,
+                      m.completion_date actualDateVARreceivedGoods, 
+                      pc.code TransCurrency,
+                      pt.fx_to_usd FXforCashFlowFrankBalance,
+                      -pt.amount_total TransAmount,
+                      -pt.usd_equivalent AdvFeeUSDEqv,
+                      '  ' as Notes
+                      FROM payable pa
+                      LEFT JOIN project p ON pa.project_id= p.id
+                      LEFT JOIN payment_transaction pt ON pt.payable_id=pa.id
+                      LEFT JOIN currency pc ON pc.id= pa.currency_id
+                      LEFT JOIN business b ON pa.business_id=b.id
+                      LEFT JOIN 
+                              (select m.id,m.name,m.planned_completion_date,m.completion_date,pm.payable_id from milestone m 
+                              INNER JOIN payable_milestone_assoc pm ON pm.milestone_id=m.id 
+                              where m.name='In Transit' and m.deleted_at is null and pm.deleted_at is null) as m ON m.payable_id=pa.id
+                      where pa.deleted_at is null and pa.project_id=",projectId,"
+                      ");
+  tbl.Advances <- koubel_connect_Rmysql %>% dbGetQuery(userQuery)
+  return(tbl.Advances)
+}))
+
+write.csv(tbl.Advances, file = "tbl.carl_report_advance.csv",row.names=FALSE, na="")
 
